@@ -1,0 +1,4 @@
+.DS_Store
+assets/.DS_Store
+database/.DS_Store
+database/dist_connectDB.req.php
