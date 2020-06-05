@@ -130,7 +130,7 @@
 						<?
 							if($_SESSION['usr_status'] > 0)
 							{										
-								$sql2 = "SELECT diaf_date dat, diac_teacher tea  FROM sdia_diary WHERE dian_status = 1 AND diac_student = '".$_SESSION['usr_id']."';";
+								$sql2 = "SELECT diaf_date dat, diac_teacher tea, diac_student stu  FROM sdia_diary WHERE dian_status = 1 AND diac_student = '".$_SESSION['usr_id']."';";
 								$trns = $pdo -> query($sql2);
 								
 								while ($trn = $trns -> fetch()) 
@@ -144,6 +144,14 @@
 											'
 													</div>
 												</div>
+												<div class="row">
+													<div class="col align-self-end" style="text-align:right;">
+														Hello, 
+											'
+											.$trn['stu'].
+											'
+													</div>
+												</div>												
 												<hr width="100%">
 												<div class="card">
 													<div class="card-body">
