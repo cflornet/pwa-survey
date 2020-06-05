@@ -19,7 +19,11 @@
 		$pdo -> setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		//echo "<strong>Connexion réussie</strong>"; 
 		// Afficher le bon encodage de caractères
-		$pdo -> exec("SET NAMES 'utf8'");	
+		$pdo -> exec("SET NAMES 'utf8'");
+
+		session_start();
+		$_SESSION['logged_in_user_id'] = '0';
+		$_SESSION['logged_in_user_name'] = '';		
 	} 
 	catch(Exception $e) 
 	{ 

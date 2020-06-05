@@ -9,7 +9,7 @@
 	<link rel="manifest" href="manifest.json">
 	<title>Survey</title>
 	<?
-		require_once "connectDB.req.php"; // connexion db avec PDO 
+		require_once "admin/connectDB.req.php"; // connexion db avec PDO 
 
 		session_start(); // La méthode choisie pour préserver des données entre plusieurs accès est l'utilisation des sessions https://www.php.net/manual/fr/intro.session.php
 
