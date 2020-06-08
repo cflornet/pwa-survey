@@ -9,48 +9,64 @@
 	<title>Users</title>
 	<?
 		require_once "connectDB.req.php";
+
+		include "SimpleXLSX.php";
+
 		session_start();
 
 		if (isset($_SESSION['usr_id']))
 		{
-			if (isset($_POST['ctu']))
+			if (isset($_POST['submit']))
 			{
-				$usr = $_POST['usu'];
-				$pwd = $_POST['pwu'];
-				$nam = $_POST['nau'];
-				$sur = $_POST['suu'];
-				$typ = $_POST['ru'];
+				$dir_upl = '';
+				$file_uploaded = $dir_upl . basename($_FILES['fil']['name']);
 
-
-				$sql = "SELECT COUNT(*) AS total FROM buse_user WHERE usec_id = '".$usr."';";
-
-				$data = $pdo -> query($sql);
-				if ($data->fetchColumn() > 0)
+				if (move_uploaded_file($_FILES['fil']['tmp_name'], $file_uploaded)) 
 				{
-					echo "<br><br><br>
-					<div class='alert alert-danger' role='alert'>
-						<span class='sr-only'>Error:</span>
-						The user already exists
-					</div>";
-				}
-				else
+    				//echo "The file is valid and was succesly uploaded.\n";
+    				echo "";
+				} 
+				else 
 				{
-					$sql = "INSERT INTO buse_user(usec_id,usec_pwd,usec_name,usec_surname,usen_type,usen_status) VALUES('".$usr."','".$pwd."','".$nam."','".$sur."',".$typ.",1);";
-					$data3 = $pdo -> query($sql);				
+    				echo "¡Error uploading File!\n";
 				}
-			} // IF
 
-			if (isset($_POST['upds']))
-			{
-				$usr = $_POST['useu'];
-				$pwd = $_POST['pwdu'];
-				$typ = $_POST['typu'];
-				$sta = $_POST['stau'];
+				if ( $xlsx = SimpleXLSX::parse('Users.xlsx') ) 
+				{
+    				foreach ($xlsx->rows() as $elt) 
+    				{
+    					$rnd = rand(1000,9999); // chiffre aléatoire "token"
+    					$sql = "SELECT COUNT(*) as cnt FROM buse_user WHERE usec_id = '".$rnd."';"; // vérification s'il existe déjà 
+    					$data = $pdo -> query($sql);
+						while ($data->fetchColumn() > 0)
+						{
+	    					$rnd = rand(1000,9999); // vérification de non existence du même chiffre
+	    					$data = $pdo -> query($sql);
+	    				}
 
-				$sql = "UPDATE buse_user SET usec_pwd = '".$pwd."',usen_type = ".$typ.",usen_status = ".$sta." WHERE usec_id = '".$usr."';";
-				//echo('<br><br><br>'.$sql);
-
-				$data = $pdo -> query($sql);
+						$sql2 = "INSERT INTO buse_user(usec_id,usec_name,usec_surname,usen_type,usen_status) VALUES('".$rnd."','".$elt[0]."','".$elt[1]."',2,1);"; // 2 - user 1 - actif
+						$data2 = $pdo -> query($sql2);	
+						// 7 pour 7 jours
+						$sql4 = "INSERT INTO sdia_diary(diac_student,diac_teacher,diaf_date,dian_status) VALUES('".$rnd."','".$_SESSION['usr_id']."',CURDATE(),1);"; // CURDATE - SQL
+						$data4 = $pdo -> query($sql4);										
+						$sql4 = "INSERT INTO sdia_diary(diac_student,diac_teacher,diaf_date,dian_status) VALUES('".$rnd."','".$_SESSION['usr_id']."',CURDATE() + INTERVAL 1 DAY,1);"; // + INTERVAL 1 DAY - SQL
+						$data4 = $pdo -> query($sql4);										
+						$sql4 = "INSERT INTO sdia_diary(diac_student,diac_teacher,diaf_date,dian_status) VALUES('".$rnd."','".$_SESSION['usr_id']."',CURDATE() + INTERVAL 2 DAY,1);";
+						$data4 = $pdo -> query($sql4);										
+						$sql4 = "INSERT INTO sdia_diary(diac_student,diac_teacher,diaf_date,dian_status) VALUES('".$rnd."','".$_SESSION['usr_id']."',CURDATE() + INTERVAL 3 DAY,1);";
+						$data4 = $pdo -> query($sql4);										
+						$sql4 = "INSERT INTO sdia_diary(diac_student,diac_teacher,diaf_date,dian_status) VALUES('".$rnd."','".$_SESSION['usr_id']."',CURDATE() + INTERVAL 4 DAY,1);";
+						$data4 = $pdo -> query($sql4);										
+						$sql4 = "INSERT INTO sdia_diary(diac_student,diac_teacher,diaf_date,dian_status) VALUES('".$rnd."','".$_SESSION['usr_id']."',CURDATE() + INTERVAL 5 DAY,1);";
+						$data4 = $pdo -> query($sql4);										
+						$sql4 = "INSERT INTO sdia_diary(diac_student,diac_teacher,diaf_date,dian_status) VALUES('".$rnd."','".$_SESSION['usr_id']."',CURDATE() + INTERVAL 6 DAY,1);";
+						$data4 = $pdo -> query($sql4);										
+					}
+  				} 
+  				else 
+  				{
+    				echo SimpleXLSX::parseError();
+  				}
 			}
 		}
 		else
@@ -114,50 +130,16 @@
 					</div>
 					<div class="card">
 						<div class="card-body">
-							<h6 class="card-title">New User</h6>
-							<form method="post">
+							<h6 class="card-title">New Users</h6>
+							<form enctype="multipart/form-data" method="POST">
 								<div class="row">
 									<div class="col">
 										<div class="form-group">
-											<label for="emu">User</label>
-											<input type="text" name="usu" placeholder="User" class="form-control"> 
+											<label for="fil">File</label>
+											<input type="file" name="fil" class="form-control-file"> <--- CHAMP html type file --->
 										</div>
 									</div>
 								</div>
-								<div class="row">
-									<div class="col">
-										<div class="form-group">
-											<label for="pwu">Password</label>
-											<input type="text" name="pwu" placeholder="Password" class="form-control"> 
-										</div>
-									</div>
-								</div>	
-								<div class="row">
-									<div class="col-md-6">
-										<div class="form-group">
-											<label for="nau">Name</label>
-											<input type="text" name="nau" placeholder="Name" class="form-control"> 
-										</div>
-									</div>
-									<div class="col-md-6">
-										<div class="form-group">
-											<label for="suu">Surname</label>
-											<input type="text" name="suu" placeholder="Surname" class="form-control"> 
-										</div>
-									</div>
-								</div>	
-								<div class="row">
-									<div class="col">
-										<div class="form-check form-check-inline">
-											<input class="form-check-input" type="radio" name="ru" id="ra" value="1">
-											<label class="form-check-label" for="ra">Admin</label>
-										</div>
-										<div class="form-check form-check-inline">
-											<input class="form-check-input" type="radio" name="ru" id="rn" value="2" checked="true">
-											<label class="form-check-label" for="ra">User</label>
-										</div>
-									</div>
-								</div>	
 								<div class="row">	
 									<div class="col-lg-12">
 										&nbsp;
@@ -166,7 +148,7 @@
 								<div class="row">	
 									<div class="col-lg-12">
 										<div class="form-group">
-											<input type="submit" name="ctu" class="btn btn-primary btn-lg btn-block" value="Create User">
+											<input type="submit" name="submit" class="btn btn-primary btn-lg btn-block" value="Upload File">
 										</div>	
 									</div>
 								</div>
@@ -183,63 +165,20 @@
 								<table id="tbp" class="table">
 									<thead>
 										<tr>
-											<th>User</th>
 											<th>Name</th>
-											<th>Password</th>
-											<th>Type</th>
-											<th>Status</th>
-											<th>&nbsp;</th>
+											<th>Token</th>
 										</tr>
 									</thead>
 									<tbody>
-										<?
-											$sql2 = "SELECT usec_id usr,usec_name nam,usec_surname sur,usec_pwd pwd,usen_type typ,usen_status sta FROM buse_user;";
-											$trns = $pdo -> query($sql2);
+										<? 	// affiche les utilisateurs crées avec les tokens 
+											$sql3 = "SELECT usec_id tok,usec_name nam,usec_surname sur FROM buse_user WHERE usen_status = 1 AND usen_type = 2;";
+											$trns = $pdo -> query($sql3);
 											while ($trn = $trns -> fetch()) 
 											{
-												if ($trn['typ'] == 1)
-												{
-													$typv = "<select class='form-control' name='typu'>
-  																<option value='1' selected>Admin</option>
-  																<option value='2'>User</option>
-  															</select>";
-												}
-												else
-												{
-													$typv = "<select class='form-control' name='typu'>
-  																<option value='1'>Admin</option>
-  																<option value='2' selected>User</option>
-  															</select>";
-												}
-												if ($trn['sta'] == 1)
-												{
-													$stav = "<select class='form-control' name='stau'>
-  																<option value='1' selected>Active</option>
-  																<option value='2'>Retired</option>
-  															</select>";
-												}
-												else
-												{
-													$stav = "<select class='form-control' name='stau'>
-  																<option value='1'>Active</option>
-  																<option value='2' selected>Retired</option>
-  															</select>";
-												}
-  												echo "<form method='post'>
-  														<input type='hidden' name='useu' value='".$trn['usr']."'>
-  													  	<tr>
-  															<td>".$trn['usr']."</td>
+  												echo "<tr>
   															<td>".$trn['nam']." ".$trn['sur']."</td>
-  															<td>
-  																<input class='form-control' type='text' name='pwdu' value='".$trn['pwd']."'>
-  															</td>
-  															<td>".$typv."</td>
-  															<td>".$stav."</td>
-  															<td>
-  																<input type='submit' class='btn btn-primary' name='upds' value='Update'>
-  															</td>
-  													  	</tr>
-  													  </form>";
+  															<td>".$trn['tok']."</td>
+  													  </tr>";
   											}
 										?>
 									</tbody>

@@ -10,7 +10,7 @@
 	<?
 		require_once "connectDB.req.php";
 
-		session_start();
+		session_start(); // session persistente si le navigateur n'est pas fermé
 		$_SESSION['usr_id'] = '';
 		$_SESSION['usr_name'] = '';
 		$_SESSION['usr_type'] = '0';		
