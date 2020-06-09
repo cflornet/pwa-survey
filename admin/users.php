@@ -136,7 +136,7 @@
 									<div class="col">
 										<div class="form-group">
 											<label for="fil">File</label>
-											<input type="file" name="fil" class="form-control-file"> <--- CHAMP html type file --->
+											<input type="file" name="fil" class="form-control-file"> <!--- CHAMP html type file --->
 										</div>
 									</div>
 								</div>
