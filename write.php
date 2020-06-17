@@ -1,59 +1,61 @@
-<!DOCTYPE HTML>
-<html>
-<head>
-	<meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-	<link rel="manifest" href="manifest.json">
-	<title>Feedback</title>
-	<?
-		require_once "admin/connectDB.req.php";
+<?
+	require_once "admin/connectDB.req.php";
 
-		session_start();
+	session_start();
 
-		if (isset($_POST['smd']))
+	if (isset($_POST['smd']))
+	{
+		$fec = $_POST['fec'];
+		$act = $_POST['act'];
+		$hoi = $_POST['hoi'];
+		$mii = $_POST['mii'];
+		$hof = $_POST['hof'];
+		$mif = $_POST['mif'];
+		$loc = $_POST['loc'];
+		$lea = $_POST['lea'];
+		$des = $_POST['des'];
+
+		if ($mif < $mii)
 		{
-			$fec = $_POST['fec'];
-			$act = $_POST['act'];
-			$hoi = $_POST['hoi'];
-			$mii = $_POST['mii'];
-			$hof = $_POST['hof'];
-			$mif = $_POST['mif'];
-			$loc = $_POST['loc'];
-			$lea = $_POST['lea'];
-			$des = $_POST['des'];
+			$reh = (( $hof -1 ) - $hoi);
+			$rem =  (($mif + 60) - $mii);
+		}
+		else
+		{
+			$reh = $hof - $hoi;
+			$rem =  $mif - $mii;				
+		}
+		$tim = $reh.".".$rem;
 
-			if ($mif < $mii)
-			{
-				$reh = (( $hof -1 ) - $hoi);
-				$rem =  (($mif + 60) - $mii);
-			}
-			else
-			{
-				$reh = $hof - $hoi;
-				$rem =  $mif - $mii;				
-			}
-			$tim = $reh.".".$rem;
+		$hsc = intVal($hoi);
+		$hrf = "PT".$hsc."H";
+		$msc = intVal($mii);
+		if($msc <> 0)
+		{
+			$hrf = $hrf.$msc."M";
+		}
 
-			$hsc = intVal($hoi);
-			$hrf = "PT".$hsc."H";
-			$msc = intVal($mii);
-			if($msc <> 0)
-			{
-				$hrf = $hrf.$msc."M";
-			}
-
-			$dat = new DateTime($fec);
-			$dat->add(new DateInterval($hrf));
-
+		$dat = new DateTime($fec);
+		$dat->add(new DateInterval($hrf));
+			
+		$sql7 = "SELECT COUNT(*) AS total FROM sdid_diary_detail WHERE didf_hour = '".$dat->format('Y-m-d H:i:s')."' AND didf_date = '".$fec."' AND didc_student = '".$_SESSION['usr_id']."';";
+			
+		$data = $pdo -> query($sql7);
+			
+		if ($data->fetchColumn() > 0)
+		{
+			echo("<div class='alert alert-danger' role='alert'><span class='sr-only'>Error:</span>The hour already exists, please verify the info</div>");
+		}
+		else
+		{
 			$sql6 = "INSERT INTO sdid_diary_detail(didf_hour,didf_date,didc_student,didn_category,didn_location,didn_group,didn_duration,didc_description) VALUES('".$dat->format('Y-m-d H:i:s')."','".$fec."','".$_SESSION['usr_id']."','".$act."',".$loc.",".$lea.",".$tim.",'".$des."');";
 
 			$data = $pdo -> query($sql6);
 		}
-	?>
-</head>
+	}
+	
+	require_once('header.php');
+?>
 <body style="background-color: #1B5082;">
 	<div class="container" id="cnt_1" style="display:block;">
 		<div class="row">
@@ -130,185 +132,54 @@
 												</div>
 												<div class="row d-flex justify-content-center">
 													<div class="d-flex justify-content-center">
-														<select class="form-control" name="hoi" style="width:72px;">
-															<option value="06">06</option>
-															<option value="07">07</option>
-															<option value="08">08</option>
-															<option value="09">09</option>
-															<option value="10">10</option>
-															<option value="11">11</option>
-															<option value="12">12</option>
-															<option value="13">13</option>
-															<option value="14">14</option>
-															<option value="15">15</option>
-															<option value="16">16</option>
-															<option value="17">17</option>
-															<option value="18">18</option>
-															<option value="19">19</option>
-															<option value="20">20</option>
-															<option value="21">21</option>
-															<option value="22">22</option>
-															<option value="23">23</option>
-															<option value="00">00</option>
-															<option value="01">01</option>
-															<option value="02">02</option>
-															<option value="03">03</option>
-															<option value="04">04</option>
-															<option value="05">05</option>
-														</select>
+														<select class="form-control" id="hoi" name="hoi" style="width:72px;" onchange="javascript:validateHour();">';
+														for($i = 6; $i <= 23; $i++) {
+															$n = $i;
+															if($i < 10)	$n = '0'.$i;
+
+															echo '<option value="'.$n.'">'.$n.'</option>';
+														}
+														for($i = 0; $i <= 5; $i++) {
+															$n = $i;
+															if($i < 10)	$n = '0'.$i;
+
+															echo '<option value="'.$n.'">'.$n.'</option>';
+														}
+
+														echo '</select>
 														&nbsp;&nbsp;:&nbsp;&nbsp;
-														<select class="form-control" name="mii" style="width:72px;">
-															<option value="00">00</option>
-															<option value="01">01</option>
-															<option value="02">02</option>
-															<option value="03">03</option>
-															<option value="04">04</option>
-															<option value="05">05</option>
-															<option value="06">06</option>
-															<option value="07">07</option>
-															<option value="08">08</option>
-															<option value="09">09</option>
-															<option value="10">10</option>
-															<option value="11">11</option>
-															<option value="12">12</option>
-															<option value="13">13</option>
-															<option value="14">14</option>
-															<option value="15">15</option>
-															<option value="16">16</option>
-															<option value="17">17</option>
-															<option value="18">18</option>
-															<option value="19">19</option>
-															<option value="20">20</option>
-															<option value="21">21</option>
-															<option value="22">22</option>
-															<option value="23">23</option>
-															<option value="24">24</option>
-															<option value="25">25</option>
-															<option value="26">26</option>
-															<option value="27">27</option>
-															<option value="28">28</option>
-															<option value="29">29</option>
-															<option value="30">30</option>
-															<option value="31">31</option>
-															<option value="32">32</option>
-															<option value="33">33</option>
-															<option value="34">34</option>
-															<option value="35">35</option>
-															<option value="36">36</option>
-															<option value="37">37</option>
-															<option value="38">38</option>
-															<option value="39">39</option>
-															<option value="40">40</option>
-															<option value="41">41</option>
-															<option value="42">42</option>
-															<option value="43">43</option>
-															<option value="44">44</option>
-															<option value="45">45</option>
-															<option value="46">46</option>
-															<option value="47">47</option>
-															<option value="48">48</option>
-															<option value="49">49</option>
-															<option value="50">50</option>
-															<option value="51">51</option>
-															<option value="52">52</option>
-															<option value="53">53</option>
-															<option value="54">54</option>
-															<option value="55">55</option>
-															<option value="56">56</option>
-															<option value="57">57</option>
-															<option value="58">58</option>
-															<option value="59">59</option>
-														</select>
+														<select class="form-control" id="mii" name="mii" style="width:72px;" onchange="javascript:validateHour();">';
+														for($i = 0; $i <= 59; $i++) {
+															$n = $i;
+															if($i < 10)	$n = '0'.$i;
+
+															echo '<option value="'.$n.'">'.$n.'</option>';
+														}
+														echo '</select>
 														&nbsp;&nbsp;to&nbsp;&nbsp;
-														<select class="form-control" name="hof" style="width:72px;">
-															<option value="06">06</option>
-															<option value="07">07</option>
-															<option value="08">08</option>
-															<option value="09">09</option>
-															<option value="10">10</option>
-															<option value="11">11</option>
-															<option value="12">12</option>
-															<option value="13">13</option>
-															<option value="14">14</option>
-															<option value="15">15</option>
-															<option value="16">16</option>
-															<option value="17">17</option>
-															<option value="18">18</option>
-															<option value="19">19</option>
-															<option value="20">20</option>
-															<option value="21">21</option>
-															<option value="22">22</option>
-															<option value="23">23</option>
-															<option value="00">00</option>
-															<option value="01">01</option>
-															<option value="02">02</option>
-															<option value="03">03</option>
-															<option value="04">04</option>
-															<option value="05">05</option>
-														</select>
+														<select class="form-control" id="hof" name="hof" style="width:72px;" onchange="javascript:validateHour();">';
+														for($i = 6; $i <= 23; $i++) {
+															$n = $i;
+															if($i < 10)	$n = '0'.$i;
+
+															echo '<option value="'.$n.'">'.$n.'</option>';
+														}
+														for($i = 0; $i <= 5; $i++) {
+															$n = $i;
+															if($i < 10)	$n = '0'.$i;
+
+															echo '<option value="'.$n.'">'.$n.'</option>';
+														}
+														echo '</select>
 														&nbsp;&nbsp;:&nbsp;&nbsp;
-														<select class="form-control" name="mif" style="width:72px;">
-															<option value="00">00</option>
-															<option value="01">01</option>
-															<option value="02">02</option>
-															<option value="03">03</option>
-															<option value="04">04</option>
-															<option value="05">05</option>
-															<option value="06">06</option>
-															<option value="07">07</option>
-															<option value="08">08</option>
-															<option value="09">09</option>
-															<option value="10">10</option>
-															<option value="11">11</option>
-															<option value="12">12</option>
-															<option value="13">13</option>
-															<option value="14">14</option>
-															<option value="15">15</option>
-															<option value="16">16</option>
-															<option value="17">17</option>
-															<option value="18">18</option>
-															<option value="19">19</option>
-															<option value="20">20</option>
-															<option value="21">21</option>
-															<option value="22">22</option>
-															<option value="23">23</option>
-															<option value="24">24</option>
-															<option value="25">25</option>
-															<option value="26">26</option>
-															<option value="27">27</option>
-															<option value="28">28</option>
-															<option value="29">29</option>
-															<option value="30">30</option>
-															<option value="31">31</option>
-															<option value="32">32</option>
-															<option value="33">33</option>
-															<option value="34">34</option>
-															<option value="35">35</option>
-															<option value="36">36</option>
-															<option value="37">37</option>
-															<option value="38">38</option>
-															<option value="39">39</option>
-															<option value="40">40</option>
-															<option value="41">41</option>
-															<option value="42">42</option>
-															<option value="43">43</option>
-															<option value="44">44</option>
-															<option value="45">45</option>
-															<option value="46">46</option>
-															<option value="47">47</option>
-															<option value="48">48</option>
-															<option value="49">49</option>
-															<option value="50">50</option>
-															<option value="51">51</option>
-															<option value="52">52</option>
-															<option value="53">53</option>
-															<option value="54">54</option>
-															<option value="55">55</option>
-															<option value="56">56</option>
-															<option value="57">57</option>
-															<option value="58">58</option>
-															<option value="59">59</option>
-														</select>
+														<select class="form-control" id="mif" name="mif" style="width:72px;" onchange="javascript:validateHour();">';
+														for($i = 0; $i <= 59; $i++) {
+															$n = $i;
+															if($i < 10)	$n = '0'.$i;
+
+															echo '<option value="'.$n.'">'.$n.'</option>';
+														}
+														echo '</select>
 													</div>
 												</div>
 									';
@@ -398,10 +269,28 @@
 		</div>
 	</div>
 
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
-    <script src='https://kit.fontawesome.com/a076d05399.js'></script>
+	<?php
+	require_once('footer.php');
+	?>
+	<script>
+	function validateHour()
+		{
+		    	v_hoi = document.getElementById('hoi').value;
+		    	v_mii = document.getElementById('mii').value;
+		    	v_hof = document.getElementById('hof').value;
+		    	v_mif = document.getElementById('mif').value;
+		    	if(v_hoi > v_hof)
+		    	{
+		    		alert('the initial hour is greater than the final. Are you sure that info is valid?');
+		    	}
+		    	if(v_hoi == v_hof)
+		    	{
+		    		if(v_mii > v_mif)
+		    		{
+		    			alert('the initial hour is equal than the final and the initial minutes are greater than the final minutes. Are you sure that info is valid?');
+		    		}
+		    	}
+		}	
+	</script>
 </body>
 </html>
