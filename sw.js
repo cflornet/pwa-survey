@@ -1,28 +1,12 @@
-function cleanResponse(response) {
-  const clonedResponse = response.clone();
-
-  // Not all browsers support the Response.body stream, so fall back to reading
-  // the entire body into memory as a blob.
-  const bodyPromise = 'body' in clonedResponse ?
-    Promise.resolve(clonedResponse.body) :
-    clonedResponse.blob();
-
-  return bodyPromise.then((body) => {
-    // new Response() is happy when passed either a stream or a Blob.
-    return new Response(body, {
-      headers: clonedResponse.headers,
-      status: clonedResponse.status,
-      statusText: clonedResponse.statusText,
-    });
-  });
-}
-
-var cache_name = 'APP-V3';
+var cache_name = 'APP-V12';
+var db_version = 6;
 
 self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open(cache_name).then(function(cache) {
       return cache.addAll([
+        'assets/js/script.js',
+        'assets/js/write.js',
         'manifest.json',
         'sw.js',
         'header.php',
@@ -41,7 +25,6 @@ self.addEventListener('install', function(event) {
         'assets/img/edit.png',
         'assets/img/see2.png',
         'assets/img/edit2.png',
-        'assets/img/back.png',
         'assets/img/sv.jpg',
         'assets/img/read.png'
       ]);
@@ -51,29 +34,33 @@ self.addEventListener('install', function(event) {
   );
 });
 
-self.addEventListener('activate', function(event) {
-  event.waitUntil(
-    caches.keys().then(function(cacheNames) {
-      return Promise.all(
-        cacheNames.filter(function(cacheName) {
-          // Return true if you want to remove this cache,
-          // but remember that caches are shared across
-          // the whole origin
-        }).map(function(cacheName) {
-          return caches.delete(cacheName);
-        })
-      );
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keyList) => {
+        return Promise.all(keyList.map((key) => {
+          if(key !== cache_name) {
+            return caches.delete(key); //Delete old cache
+          }
+      }));
     })
   );
 });
 
-
-self.addEventListener('fetch', event => {
+self.addEventListener('fetch', function(event) {
   event.respondWith(
-    caches.open(cache_name)
-      .then(cache => cache.match(event.request, {ignoreSearch: true}))
-      .then(response => {
-      return fetch(event.request) || response;
+    fetch(event.request).then(function(response) {
+      let clonedResponse = response.clone();
+
+      if(event.request.method == 'GET') { // Only cache GET requests
+        caches.open(cache_name).then(function(cache) {
+          cache.put(event.request, clonedResponse);
+        });
+      }
+
+      return response;
     })
-  );
+    .catch(function() {
+        return caches.match(event.request, {ignoreSearch: true});
+    })
+  )
 });

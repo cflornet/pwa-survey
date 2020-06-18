@@ -1,3 +1,63 @@
+<?
+	require_once "connectDB.req.php";
+
+	include "SimpleXLSX.php";
+
+	session_start();
+
+	if (isset($_SESSION['usr_id']))
+	{
+		if (isset($_POST['submit']))
+		{
+			$dir_upl = '';
+			$file_uploaded = $dir_upl . basename($_FILES['fil']['name']);
+
+			if (move_uploaded_file($_FILES['fil']['tmp_name'], $file_uploaded)) 
+			{
+				//echo "The file is valid and was succesly uploaded.\n";
+				echo "";
+			} 
+			else 
+			{
+				echo "¡Error uploading File!\n";
+			}
+
+			if ( $xlsx = SimpleXLSX::parse('Users.xlsx') ) 
+			{
+				foreach ($xlsx->rows() as $elt) 
+				{
+					$rnd = rand(1000,9999); // chiffre aléatoire "token"
+					$sql = "SELECT COUNT(*) as cnt FROM buse_user WHERE usec_id = '".$rnd."';"; // vérification s'il existe déjà 
+					$data = $pdo -> query($sql);
+					while ($data->fetchColumn() > 0)
+					{
+						$rnd = rand(1000,9999); // vérification de non existence du même chiffre
+						$data = $pdo -> query($sql);
+					}
+
+					$sql2 = "INSERT INTO buse_user(usec_id,usec_name,usec_surname,usen_type,usen_status) VALUES('".$rnd."','".$elt[0]."','".$elt[1]."',2,1);"; // 2 - user 1 - actif
+					$data2 = $pdo -> query($sql2);	
+					// 7 pour 7 jours
+					$sql4 = "INSERT INTO sdia_diary(diac_student,diac_teacher,diaf_date,dian_status) VALUES('".$rnd."','".$_SESSION['usr_id']."',CURDATE(),1);"; // CURDATE - SQL
+					$data4 = $pdo -> query($sql4);	
+					for($i = 1; $i <= 6; $i++) {
+						$sql4 = "INSERT INTO sdia_diary(diac_student,diac_teacher,diaf_date,dian_status) VALUES('".$rnd."','".$_SESSION['usr_id']."',CURDATE() + INTERVAL $i DAY,1);"; // + INTERVAL 1 DAY - SQL
+						$data4 = $pdo -> query($sql4);	
+					}																	
+				}
+			} 
+			else 
+			{
+				echo SimpleXLSX::parseError();
+			}
+		}
+	}
+	else
+	{
+		header("Location: login.php");
+	}
+?>
+
 <!DOCTYPE HTML>
 <html>
 <head>
@@ -7,73 +67,6 @@
 	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 	<title>Users</title>
-	<?
-		require_once "connectDB.req.php";
-
-		include "SimpleXLSX.php";
-
-		session_start();
-
-		if (isset($_SESSION['usr_id']))
-		{
-			if (isset($_POST['submit']))
-			{
-				$dir_upl = '';
-				$file_uploaded = $dir_upl . basename($_FILES['fil']['name']);
-
-				if (move_uploaded_file($_FILES['fil']['tmp_name'], $file_uploaded)) 
-				{
-    				//echo "The file is valid and was succesly uploaded.\n";
-    				echo "";
-				} 
-				else 
-				{
-    				echo "¡Error uploading File!\n";
-				}
-
-				if ( $xlsx = SimpleXLSX::parse('Users.xlsx') ) 
-				{
-    				foreach ($xlsx->rows() as $elt) 
-    				{
-    					$rnd = rand(1000,9999); // chiffre aléatoire "token"
-    					$sql = "SELECT COUNT(*) as cnt FROM buse_user WHERE usec_id = '".$rnd."';"; // vérification s'il existe déjà 
-    					$data = $pdo -> query($sql);
-						while ($data->fetchColumn() > 0)
-						{
-	    					$rnd = rand(1000,9999); // vérification de non existence du même chiffre
-	    					$data = $pdo -> query($sql);
-	    				}
-
-						$sql2 = "INSERT INTO buse_user(usec_id,usec_name,usec_surname,usen_type,usen_status) VALUES('".$rnd."','".$elt[0]."','".$elt[1]."',2,1);"; // 2 - user 1 - actif
-						$data2 = $pdo -> query($sql2);	
-						// 7 pour 7 jours
-						$sql4 = "INSERT INTO sdia_diary(diac_student,diac_teacher,diaf_date,dian_status) VALUES('".$rnd."','".$_SESSION['usr_id']."',CURDATE(),1);"; // CURDATE - SQL
-						$data4 = $pdo -> query($sql4);										
-						$sql4 = "INSERT INTO sdia_diary(diac_student,diac_teacher,diaf_date,dian_status) VALUES('".$rnd."','".$_SESSION['usr_id']."',CURDATE() + INTERVAL 1 DAY,1);"; // + INTERVAL 1 DAY - SQL
-						$data4 = $pdo -> query($sql4);										
-						$sql4 = "INSERT INTO sdia_diary(diac_student,diac_teacher,diaf_date,dian_status) VALUES('".$rnd."','".$_SESSION['usr_id']."',CURDATE() + INTERVAL 2 DAY,1);";
-						$data4 = $pdo -> query($sql4);										
-						$sql4 = "INSERT INTO sdia_diary(diac_student,diac_teacher,diaf_date,dian_status) VALUES('".$rnd."','".$_SESSION['usr_id']."',CURDATE() + INTERVAL 3 DAY,1);";
-						$data4 = $pdo -> query($sql4);										
-						$sql4 = "INSERT INTO sdia_diary(diac_student,diac_teacher,diaf_date,dian_status) VALUES('".$rnd."','".$_SESSION['usr_id']."',CURDATE() + INTERVAL 4 DAY,1);";
-						$data4 = $pdo -> query($sql4);										
-						$sql4 = "INSERT INTO sdia_diary(diac_student,diac_teacher,diaf_date,dian_status) VALUES('".$rnd."','".$_SESSION['usr_id']."',CURDATE() + INTERVAL 5 DAY,1);";
-						$data4 = $pdo -> query($sql4);										
-						$sql4 = "INSERT INTO sdia_diary(diac_student,diac_teacher,diaf_date,dian_status) VALUES('".$rnd."','".$_SESSION['usr_id']."',CURDATE() + INTERVAL 6 DAY,1);";
-						$data4 = $pdo -> query($sql4);										
-					}
-  				} 
-  				else 
-  				{
-    				echo SimpleXLSX::parseError();
-  				}
-			}
-		}
-		else
-		{
-			header("Location: login.php");
-		}
-	?>
 </head>
 <body>
 	<div class="container">		
@@ -86,20 +79,7 @@
 			</a>
 		  	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="fa="fal.$sqls;e" aria-label="Toggle navigation">
 		    	<span class="na//vbar-toggler-icon"></span>
-		  	</button>
-		  	<div class="collapse navbar-collapse" id="navbarNavDropdown">
-		    	<ul class="navbar-nav">
-		      		<li class="nav-item dropdown">
-		        		<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-		          			Actions
-		        		</a>
-		        		<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-		        			<a class="dropdown-item" href="users.php">Users</a>
-		        			<a class="dropdown-item" href="diaries.php">Diaries</a>
-		        		</div>
-		      		</li>
-		    	</ul>
-		  	</div>
+			</button>
 		</nav>	
 		<div class="container">
 			<div class="row">
