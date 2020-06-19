@@ -57,13 +57,14 @@
 	require_once('header.php');
 ?>
 <body style="background-color: #1B5082;">
-	<nav class="navtop">
-			<div>
-				
-				<a href="profile.php"><i class="fas fa-user-circle"></i>Profile</a>
-				<a href="logout.php"><i class="fas fa-sign-out-alt"></i>Logout</a>
+	<div class="container">
+		<nav class="navtop">
+			<div>	
+				<a class="float-right" href="profile.php"><i class="fas fa-user-circle"></i>Profile</a>
+				<a class="float-right" href="logout.php"><i class="fas fa-sign-out-alt"></i>Logout</a>
 			</div>
 		</nav>
+	</div>
 	<div class="container" id="cnt_1" style="display:block;">
 		<div class="row">
 			<div class="col">

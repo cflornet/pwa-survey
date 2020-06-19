@@ -1,4 +1,4 @@
-var cache_name = 'APP-V12';
+var cache_name = 'APP-V13';
 var db_version = 6;
 
 self.addEventListener('install', function(event) {
@@ -13,12 +13,14 @@ self.addEventListener('install', function(event) {
         'footer.php',
         'index.php',
         'write.php',
+        'profile.php',
         'https://code.jquery.com/jquery-3.4.1.slim.min.js',
         'https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js',
         'https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js',
         'https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js',
         'https://kit.fontawesome.com/a076d05399.js',
         'https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css',
+        'https://use.fontawesome.com/releases/v5.7.1/css/all.css',
         'assets/img/Feed.png',
         'assets/img/back.png',
         'assets/img/see.png',
@@ -63,4 +65,28 @@ self.addEventListener('fetch', function(event) {
         return caches.match(event.request, {ignoreSearch: true});
     })
   )
+});
+
+self.addEventListener('push', function(event) {
+  let title = 'FeedBack';
+                        
+  let options = {
+      body: "It's time to fill your activities",
+      icon: "assets/img/icon/icon.png",
+      vibrate: [200, 100, 200],
+      tag: "daily-fill",
+      showTrigger: new Date().getTime() + 15 * 1000
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+
+});
+
+
+self.addEventListener('notificationclick', function(event) {
+  event.notification.close();
+
+  event.waitUntil(
+    clients.openWindow('https://developers.google.com/web/')
+  );
 });

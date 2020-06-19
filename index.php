@@ -52,7 +52,6 @@
 	if(isset($_GET['logout'])) {
 		?>
 		<script>
-			alert('logout');
 			localStorage.setItem('usr_id', '');
 			localStorage.setItem('usr_name', '');
 			localStorage.setItem('usr_status', 0);
@@ -63,7 +62,11 @@
 	require_once('header.php');
 ?>
 <body style="background-color: #1B5082;">
-	<a href="out.php">Logout</a>
+	<div class="container">
+		<nav class="navtop">
+			<a class="float-right" href="logout.php"><i class="fas fa-sign-out-alt"></i>Logout</a>
+		</nav>
+	</div>
 	<div class="container" id="cnt_1">
 		<div class="row">
 			&nbsp;
