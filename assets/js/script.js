@@ -1,3 +1,80 @@
+let request = indexedDB.open("FeedBackDB", db_version);
+
+request.onupgradeneeded = function(event) {
+    let db = event.target.result;
+
+    if(db.objectStoreNames.contains('requests'))    db.deleteObjectStore('requests');
+    if(db.objectStoreNames.contains('activites'))    db.deleteObjectStore('activites');
+    if(db.objectStoreNames.contains('dates'))    db.deleteObjectStore('dates');
+    if(db.objectStoreNames.contains('groups'))    db.deleteObjectStore('groups');
+
+    db.createObjectStore("requests", { autoIncrement : true });
+    db.createObjectStore("activites", { autoIncrement : true });
+    db.createObjectStore("dates", { autoIncrement : true });
+    db.createObjectStore("groups", { autoIncrement : true });
+
+    localStorage.setItem('usr_id', '');
+    localStorage.setItem('usr_name', '');
+    localStorage.setItem('usr_status', 0);
+
+    window.location.href = window.location.origin;
+}
+
+request.onsuccess = function(event) {
+    let db = event.target.result;
+
+    let body = new FormData();
+    body.append('action', 'test_online');
+    fetch('ajax-post.php', {method: 'POST', body: body}).then(test_response => {
+
+        //Execute cached requests
+        let getRequests = db.transaction(["requests"], "readwrite")
+                        .objectStore("requests")
+                        .getAll();
+
+        getRequests.onsuccess = function(event) { //On get cached requests
+            let result = event.target.result[0];
+
+            if(Array.isArray(result) && result.length > 0) {
+                let cachedRequests = result;
+
+                if(!Array.isArray(cachedRequests))
+                    cachedRequests = [];
+
+                console.log(cachedRequests);
+
+                cachedRequests.forEach(function(element) {
+                    let formData = new FormData();
+
+                    Object.keys(element).forEach(function(key) {
+                        formData.append(key, element[key]);
+                    });
+
+                    let params = {
+                        method: 'POST',
+                        body: formData
+                    }
+
+                    fetch('ajax-post.php', params).then(response => { //Send the request 
+                        
+                    });
+                });
+
+                db.transaction(["requests"], "readwrite") //Clear the table
+                    .objectStore("requests").clear();
+
+                window.location.href = window.location.href;
+
+            }
+        }
+
+    });
+    
+}
+
+if(localStorage.getItem('usr_status') == 0 && window.location.pathname != '/' && window.location.pathname != '/index.php')
+    window.location.freh = window.location.origin;
+
 if(window.location.pathname == '/' || window.location.pathname == '/index.php') {
     let usr_status = localStorage.getItem('usr_status');
 
@@ -7,65 +84,29 @@ if(window.location.pathname == '/' || window.location.pathname == '/index.php') 
         document.querySelector('#cnt_2').style.display = 'none';
 
         let selectDateForm = document.querySelector('form#selectDateForm');
-        let formData = new FormData();
 
-        formData.append('action', 'get_dates');
-        formData.append('usr_id', localStorage.getItem('usr_id'));
+        populateIndexDatesForm(selectDateForm);
 
-        let params = {
-            method: 'POST',
-            body: formData
-        };
+        selectDateForm.addEventListener('submit', function(event) {
+            event.preventDefault();
 
-        fetch('ajax-write.php', params).then(response => { //Get available dates 
-            response.text().then(content => {
-                selectDateForm.innerHTML = content; //Echo form
-
-                let request = indexedDB.open("FeedBackDB", db_version);
-                var db;
-
-                request.onsuccess = function(event) {
-                    db = event.target.result;
-                    
-                    let deleteRequest = db.transaction(["get_dates"], "readwrite")
-                                            .objectStore("get_dates").clear();
-
-                    db.transaction(["get_dates"], "readwrite")
-                    .objectStore("get_dates")
-                    .add({
-                        'date': new Date().toString(),
-                        'content': content
-                    });
-                }
-
-            });
-
+            let formData = new FormData(this);
             
-        })
-        .catch(err => { //IF the request fails (probably because no Internet), get the result from cache
-            let request = indexedDB.open("FeedBackDB", db_version);
-            var db;
-
-            request.onsuccess = function(event) {
-                db = event.target.result;
-
-                let dates = db.transaction(["get_dates"], "readwrite")
-                .objectStore("get_dates")
-                .getAll();
-
-                dates.onsuccess = function(event) {
-                    let result = event.target.result;
-
-                    selectDateForm.innerHTML = result[0].content; //Echo form
-                    console.log(result);
-                }
-
-            }
+            showDayActivity(document.getElementById('activities'), formData.get('fec'));
         });
     }
     else {
         document.querySelector('#cnt_1').style.display = 'none';
         document.querySelector('#cnt_2').style.display = 'block';
+
+        let form = document.querySelector('#loginForm');
+
+        form.addEventListener('submit', function(event) {
+		
+            event.preventDefault();
+    
+            login(this);         
+        });
     }
 
 
@@ -124,10 +165,6 @@ if(window.location.pathname == '/' || window.location.pathname == '/index.php') 
             .then(function(reg)
             {
                 console.log("SW Registered.");
-                /*if ('SyncManager' in window) {
-                    reg.sync.register('sync-diary');
-                    console.log('Sync Registered');
-                }*/
             }).catch(function(err) 
             {
                 console.log("SW Not Registered: ", err)
@@ -144,9 +181,6 @@ if(window.location.pathname == '/' || window.location.pathname == '/index.php') 
                         applicationServerKey: 'BKH2DEMO8OQOnevRZtN2GecXNGegk42XiUX1dHEoUxd6PQwRw8BGvPgQQV1hm-DspVePisdm1WPKLrwPIab0x4E'
                     }).then(function(pushSubscription) {
 
-                        console.log(pushSubscription);
-                        console.log(JSON.stringify(pushSubscription));
-
                     })
                 });
 
@@ -157,58 +191,5 @@ if(window.location.pathname == '/' || window.location.pathname == '/index.php') 
 
 //----------------------------------------------
 
-let request = indexedDB.open("FeedBackDB", db_version);
 
-request.onupgradeneeded = function(event) {
-    let db = event.target.result;
-
-    db.createObjectStore("get_dates", { autoIncrement : true });
-    db.createObjectStore("get_write_form", { autoIncrement : true });
-    db.createObjectStore("requests", { autoIncrement : true });
-}
-
-request.onsuccess = function(event) {
-    let db = event.target.result;
-
-    let getRequests = db.transaction(["requests"], "readwrite")
-                        .objectStore("requests")
-                        .getAll();
-
-    getRequests.onsuccess = function(event) { //On get cached requests
-        let result = event.target.result;
-
-        if(Array.isArray(result) && result.length > 0) {
-            let cachedRequests = result[0].content;
-            
-            if(cachedRequests !== undefined)
-                cachedRequests = JSON.parse(cachedRequests);
-
-            if(!Array.isArray(cachedRequests))
-                cachedRequests = [];
-
-            cachedRequests.forEach(function(element) {
-                let formData = new FormData();
-
-                Object.keys(element).forEach(function(key) {
-                    formData.append(key, element[key]);
-                });
-
-                let params = {
-                    method: 'POST',
-                    body: formData
-                }
-
-                fetch('ajax-write.php', params).then(response => { //Send the request 
-                    response.text().then(res => { 
-                        console.log(res); 
-                    });
-                });
-            });
-
-            db.transaction(["requests"], "readwrite") //Clear the table
-                .objectStore("requests").clear();
-
-        }
-    }
-}
 

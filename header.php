@@ -21,6 +21,11 @@
 	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
+	<link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        body { background-color: #1B5082;}
+        @media (min-width: 768px){ body{max-width: 768px; margin: 0 auto;}}
+    </style>
 	<link rel="manifest" href="manifest.json">
 	<title>Survey</title>
 </head>

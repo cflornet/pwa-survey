@@ -2,20 +2,6 @@
 
 require_once "admin/connectDB.req.php";
 
-session_start();
-
-if (!isset($_SESSION['usr_status']) || $_SESSION['usr_status'] !== 1) {
-	header('Location: index.php');
-}
-
-
-
-$stmt = $pdo->prepare('SELECT * FROM buse_user WHERE usec_id = :id');
-
-$stmt->execute([':id' => $_SESSION['usr_id']]);
-
-$user = $stmt->fetch(PDO::FETCH_ASSOC);
-
 require_once('header.php');
 ?>
 <body style="background-color: #1B5082;">
@@ -36,26 +22,28 @@ require_once('header.php');
 			</div>
 		</div>
 		<div class="text-center">
-			<img src="assets/img/Feed.png" class="img-fluid" alt="Responsive image">
-			<img src="assets/img/back.png" class="img-fluid" alt="Responsive image">
+			<a href="index.php">
+				<img src="assets/img/Feed.png" class="img-fluid" alt="Responsive image">
+				<img src="assets/img/back.png" class="img-fluid" alt="Responsive image">
+			</a>
 		</div>
 		<div class="card" style="background-color: #E5E5E5">
 			<div class="card-title">
-				&nbsp;
+				<a href="javascript:history.back()">Go Back</a>
 				<h4>Today's Feedback</h4>
 			</div>
 			<div class="card-body">
 			<h2>Profile Page</h2>
-			<div>
+			<div class="profile">
 				<p>Your account details are below:</p>
 				<table>
 					<tr>
 						<td>Name:</td>
-						<td><?=$user['usec_name'].' '.$user['usec_surname']?></td>
+						<td class="name"></td>
 					</tr>
 					<tr>
 						<td>ID:</td>
-						<td><?=$user['usec_id']?></td>
+						<td class="id"></td>
 					</tr>
 				</table>
 			</div>
@@ -66,6 +54,6 @@ require_once('header.php');
 	<?php
 	require_once('footer.php');
 	?>
-	
+	<script src="assets/js/profile.js"></script>
 	</body>
 </html>

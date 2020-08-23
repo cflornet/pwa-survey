@@ -1,19 +1,32 @@
-var cache_name = 'APP-V13';
-var db_version = 6;
+var cache_name = 'APP-V1';
+var db_version = 27;
 
 self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open(cache_name).then(function(cache) {
       return cache.addAll([
+        'assets/css/style.css',
         'assets/js/script.js',
         'assets/js/write.js',
+        'assets/js/mod.js',
+        'assets/js/del.js',
+        'assets/js/logout.js',
+        'assets/js/profile.js',
+        'assets/js/summary.js',
+        'assets/js/functions.js',
+        'assets/js/index-min.js',
+        'assets/js/typeahead.bundle.js',
         'manifest.json',
         'sw.js',
         'header.php',
         'footer.php',
         'index.php',
         'write.php',
+        'logout.php',
         'profile.php',
+        'mod.php',
+        'del.php',
+        'summary.php',
         'https://code.jquery.com/jquery-3.4.1.slim.min.js',
         'https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js',
         'https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js',
@@ -36,14 +49,15 @@ self.addEventListener('install', function(event) {
   );
 });
 
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then((keyList) => {
-        return Promise.all(keyList.map((key) => {
-          if(key !== cache_name) {
-            return caches.delete(key); //Delete old cache
-          }
-      }));
+self.addEventListener('activate', function(event) {
+  event.waitUntil(
+    caches.keys().then(function(cacheNames) {
+      return Promise.all(
+        cacheNames.map(function(cacheName) {
+          if(cacheName !== cache_name)
+            return caches.delete(cacheName);
+        })
+      );
     })
   );
 });
@@ -62,7 +76,9 @@ self.addEventListener('fetch', function(event) {
       return response;
     })
     .catch(function() {
-        return caches.match(event.request, {ignoreSearch: true});
+        if(event.request.method == 'GET')
+          return caches.match(event.request, {ignoreSearch: true});
+
     })
   )
 });

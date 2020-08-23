@@ -1,6 +1,2 @@
-<?php
-session_start();
-session_destroy();
-// Redirect to the login page:
-header('Location: ./index.php');
-?>
+<script src="sw.js"></script>
+<script src="assets/js/logout.js"></script>

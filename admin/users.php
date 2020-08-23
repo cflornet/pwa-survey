@@ -35,15 +35,14 @@
 						$data = $pdo -> query($sql);
 					}
 
-					$sql2 = "INSERT INTO buse_user(usec_id,usec_name,usec_surname,usen_type,usen_status) VALUES('".$rnd."','".$elt[0]."','".$elt[1]."',2,1);"; // 2 - user 1 - actif
-					$data2 = $pdo -> query($sql2);	
-					// 7 pour 7 jours
-					$sql4 = "INSERT INTO sdia_diary(diac_student,diac_teacher,diaf_date,dian_status) VALUES('".$rnd."','".$_SESSION['usr_id']."',CURDATE(),1);"; // CURDATE - SQL
-					$data4 = $pdo -> query($sql4);	
-					for($i = 1; $i <= 6; $i++) {
-						$sql4 = "INSERT INTO sdia_diary(diac_student,diac_teacher,diaf_date,dian_status) VALUES('".$rnd."','".$_SESSION['usr_id']."',CURDATE() + INTERVAL $i DAY,1);"; // + INTERVAL 1 DAY - SQL
-						$data4 = $pdo -> query($sql4);	
-					}																	
+					$sql2 = "INSERT INTO buse_user(usec_id,usec_name,usec_surname,usen_type,usen_status,usec_pwd,usen_utc) VALUES('".$rnd."','".$elt[0]."','".$elt[1]."',2,1,'',".$elt[2].");"; // 2 - user 1 - actif et pwd vide
+					$data2 = $pdo -> query($sql2);
+                    // 7 pour 7 jours
+                    for($i = 0; $i <= 6; $i++)
+                    {
+                        $sql4 = "INSERT INTO sdia_diary(diac_student,diac_teacher,diaf_date,dian_status) VALUES('".$rnd."','".$_SESSION['usr_id']."',CURDATE() + INTERVAL $i DAY,1);"; // + INTERVAL 1 DAY - SQL
+                        $data4 = $pdo -> query($sql4);
+                    }
 				}
 			} 
 			else 
