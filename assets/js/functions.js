@@ -471,15 +471,13 @@ function validateHour()
     v_mif = document.getElementById('mif').value;
     if(v_hoi > v_hof)
     {
-        alert('Warning: the end of the activity seems to be the next day?');
-    }
-    if(v_hoi == v_hof)
+    	alert('Initial hour '+v_hoi+' is later than final hour '+v_hof+'. Are you sure that info is valid?');
+    }	
+    if(v_hoi == v_hof && v_mii >= v_mif)
     {
-        if(v_mii > v_mif)
-        {
-            alert('the initial hour is equal than the final and the initial minutes are greater than the final minutes. Are you sure that info is valid?');
-        }
+    	alert('Initial minutes '+v_hof+' are later than final '+v_mif+'. Are you sure that info is valid?');
     }
+
 }
 
 function populateModifyEntryForm(form_element, id) {
