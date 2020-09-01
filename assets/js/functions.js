@@ -360,6 +360,7 @@ function populateAddEntryForm(form_element) {
             });
 
             form_element.querySelector('#select_date').innerHTML = options;
+            $('#select_date').selectpicker('refresh');
         }
 
         //Group

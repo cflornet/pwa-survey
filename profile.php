@@ -30,7 +30,7 @@ require_once('header.php');
 		<div class="card" style="background-color: #E5E5E5">
 			<div class="card-title">
 				<a href="javascript:history.back()">Go Back</a>
-				<h4>Today's Feedback</h4>
+				<h4>Today's Workflow</h4>
 			</div>
 			<div class="card-body">
 			<h2>Profile Page</h2>
