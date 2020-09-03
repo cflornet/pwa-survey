@@ -7,49 +7,7 @@
 
 	if (isset($_SESSION['usr_id']))
 	{
-		if (isset($_POST['submit']))
-		{
-			$dir_upl = '';
-			$file_uploaded = $dir_upl . basename($_FILES['fil']['name']);
 
-			if (move_uploaded_file($_FILES['fil']['tmp_name'], $file_uploaded)) 
-			{
-				//echo "The file is valid and was succesly uploaded.\n";
-				echo "";
-			} 
-			else 
-			{
-				echo "¡Error uploading File!\n";
-			}
-
-			if ( $xlsx = SimpleXLSX::parse('Users.xlsx') ) 
-			{
-				foreach ($xlsx->rows() as $elt) 
-				{
-					$rnd = rand(1000,9999); // chiffre aléatoire "token"
-					$sql = "SELECT COUNT(*) as cnt FROM buse_user WHERE usec_id = '".$rnd."';"; // vérification s'il existe déjà 
-					$data = $pdo -> query($sql);
-					while ($data->fetchColumn() > 0)
-					{
-						$rnd = rand(1000,9999); // vérification de non existence du même chiffre
-						$data = $pdo -> query($sql);
-					}
-
-					$sql2 = "INSERT INTO buse_user(usec_id,usec_name,usec_surname,usen_type,usen_status,usec_pwd,usen_utc) VALUES('".$rnd."','".$elt[0]."','".$elt[1]."',2,1,'',".$elt[2].");"; // 2 - user 1 - actif et pwd vide
-					$data2 = $pdo -> query($sql2);
-                    // 7 pour 7 jours
-                    for($i = 0; $i <= 6; $i++)
-                    {
-                        $sql4 = "INSERT INTO sdia_diary(diac_student,diac_teacher,diaf_date,dian_status) VALUES('".$rnd."','".$_SESSION['usr_id']."',CURDATE() + INTERVAL $i DAY,1);"; // + INTERVAL 1 DAY - SQL
-                        $data4 = $pdo -> query($sql4);
-                    }
-				}
-			} 
-			else 
-			{
-				echo SimpleXLSX::parseError();
-			}
-		}
 	}
 	else
 	{
@@ -98,7 +56,7 @@
 			</div>
 			<div class="row">
 				<div class="col align-self-end" style="text-align:right;">
-					Users
+					Diaries 
 				</div>
 			</div>
 			<hr width=100%>
@@ -109,54 +67,28 @@
 					</div>
 					<div class="card">
 						<div class="card-body">
-							<h6 class="card-title">New Users</h6>
-							<form enctype="multipart/form-data" method="POST">
-								<div class="row">
-									<div class="col">
-										<div class="form-group">
-											<label for="fil">File</label>
-											<input type="file" name="fil" class="form-control-file"> <!--- CHAMP html type file --->
-										</div>
-									</div>
-								</div>
-								<div class="row">	
-									<div class="col-lg-12">
-										&nbsp;
-									</div>
-								</div>
-								<div class="row">	
-									<div class="col-lg-12">
-										<div class="form-group">
-											<input type="submit" name="submit" class="btn btn-primary btn-lg btn-block" value="Upload File">
-										</div>	
-									</div>
-								</div>
-							</form>
-						</div>
-					</div>
-					<div class=row>
-						&nbsp;
-					</div>
-					<div class="card">
-						<div class="card-body">
-							<h6 class="card-title">Users List</h6>
+							<h6 class="card-title">Diaries</h6>
 							<div class="table-responsive">
 								<table id="tbp" class="table">
 									<thead>
 										<tr>
 											<th>Name</th>
-											<th>Token</th>
+											<th>UTC</th>
+											<th>Date</th>
+											<th>Status</th>
 										</tr>
 									</thead>
 									<tbody>
-										<? 	// affiche les utilisateurs crées avec les tokens 
-											$sql3 = "SELECT usec_id tok,usec_name nam,usec_surname sur FROM buse_user WHERE usen_status = 1 AND usen_type = 2;";
-											$trns = $pdo -> query($sql3);
+										<? 	
+											$sql1 = "SELECT diac_student,usec_name,usec_surname,usen_utc,diaf_date,dian_status FROM sdia_diary,buse_user WHERE diac_student = usec_id AND usec_id = ".$_GET['cod'].";";
+											$trns = $pdo -> query($sql1);
 											while ($trn = $trns -> fetch()) 
 											{
   												echo "<tr>
-  															<td><a href='info.php?cod=".$trn['tok']."' target='_blank'>".$trn['nam']." ".$trn['sur']."</a></td>
-  															<td><a href='info.php?cod=".$trn['tok']."' target='_blank'>".$trn['tok']."</a></td>
+  															<td><a href='detail.php?cod=".$trn['diac_student']."' target='_blank'>".$trn['usec_name']." ".$trn['usec_surname']."</a></td>
+															  <td><a href='detail.php?cod=".$trn['diac_student']."' target='_blank'>".$trn['usen_utc']."</a></td>
+															  <td><a href='detail.php?cod=".$trn['diac_student']."' target='_blank'>".$trn['diaf_date']."</a></td>
+															  <td><a href='detail.php?cod=".$trn['diac_student']."' target='_blank'>".$trn['dian_status']."</a></td>
   													  </tr>";
   											}
 										?>
