@@ -24,7 +24,7 @@
 		<div class="card" style="background-color: #E5E5E5">
 			<div class="card-title">
 				<a href="javascript:history.back()">Go Back</a>
-				<h4 id="titre">Today's Workflow</h4>
+				<h4 id="titre">Today's Workload</h4>
 			</div>
 			<div class="card-body">
 				<form id="selectDateForm">
@@ -75,6 +75,7 @@
 			<form id="loginForm">
 				<div class="text-center">		
 					<h6 style="color:#fff">Enter the code your teacher gave you</h6>
+					<p style="color:#fff">Workflow app helps teachers to understand my real time workload</p>
 				</div>	
 				<div class="row">
 					<div class="col">

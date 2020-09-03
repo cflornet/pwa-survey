@@ -28,7 +28,7 @@
 		<div class="card" style="background-color: #E5E5E5">
 			<div class="card-title">
 				<a href="javascript:history.back()">Go Back</a>
-				<h4>Today's Workflow</h4>
+				<h4>Today's Workload</h4>
 			</div>
 			<div class="card-body">
 				<div class="row">
@@ -69,13 +69,13 @@
 					<div class="row d-flex justify-content-center">
 						<div id="hours_row" class="d-flex justify-content-center">
 							<div class="input-group">
-								<select class="form-control hour" id="hoi" name="hoi" style="width:62px;font-size:smaller;" onchange="javascript:validateHour();">';
+								<select class="form-control hour" id="hoi" name="hoi" style="width:62px;font-size:smaller;" >';
 								
 
 								</select>
 
 								<span class="input-group-addon">:</span>
-								<select class="form-control minutes" id="mii" name="mii" style="width:62px;font-size:smaller;" onchange="javascript:validateHour();">';
+								<select class="form-control minutes" id="mii" name="mii" style="width:62px;font-size:smaller;" >';
 							
 								</select>
 

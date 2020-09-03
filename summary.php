@@ -35,7 +35,7 @@
     <div class="card" style="background-color: #E5E5E5">
         <div class="card-title">
             <a href="javascript:history.back()">Go Back</a>
-            <h4>Today's Workflow</h4>
+            <h4>Today's Workload</h4>
         </div>
         <div class="card-body">
             <form method="post" id="summaryForm">
